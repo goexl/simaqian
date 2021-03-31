@@ -45,10 +45,16 @@ func (zl *ZapLogger) parse(fields ...gox.Field) (zapFields []zap.Field) {
 	zapFields = make([]zap.Field, 0, len(fields))
 	for _, field := range fields {
 		switch field.Value().(type) {
-		case gox.IntField:
+		case *gox.Int8Field:
+			zapFields = append(zapFields, zap.Int8(field.Key(), field.Value().(int8)))
+		case *gox.IntField:
 			zapFields = append(zapFields, zap.Int(field.Key(), field.Value().(int)))
-		case gox.StringField:
+		case *gox.Int64Field:
+			zapFields = append(zapFields, zap.Int64(field.Key(), field.Value().(int64)))
+		case *gox.StringField:
 			zapFields = append(zapFields, zap.String(field.Key(), field.Value().(string)))
+		case *gox.ErrorField:
+			zapFields = append(zapFields, zap.Error(field.Value().(error)))
 		default:
 			zapFields = append(zapFields, zap.Any(field.Key(), field.Value()))
 		}
