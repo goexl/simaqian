@@ -2,6 +2,7 @@ package glog
 
 import (
 	`github.com/storezhang/gox`
+	`github.com/storezhang/gox/field`
 	`go.uber.org/zap`
 )
 
@@ -43,26 +44,26 @@ func (zl *ZapLogger) Fatal(msg string, fields ...gox.Field) {
 
 func (zl *ZapLogger) parse(fields ...gox.Field) (zapFields []zap.Field) {
 	zapFields = make([]zap.Field, 0, len(fields))
-	for _, field := range fields {
-		switch field.Value().(type) {
-		case *gox.Int8Field:
-			zapFields = append(zapFields, zap.Int8(field.Key(), field.Value().(int8)))
-		case *gox.IntField:
-			zapFields = append(zapFields, zap.Int(field.Key(), field.Value().(int)))
-		case *gox.UintField:
-			zapFields = append(zapFields, zap.Uint(field.Key(), field.Value().(uint)))
-		case *gox.Int64Field:
-			zapFields = append(zapFields, zap.Int64(field.Key(), field.Value().(int64)))
-		case *gox.Float32Field:
-			zapFields = append(zapFields, zap.Float32(field.Key(), field.Value().(float32)))
-		case *gox.Float64Field:
-			zapFields = append(zapFields, zap.Float64(field.Key(), field.Value().(float64)))
-		case *gox.StringField:
-			zapFields = append(zapFields, zap.String(field.Key(), field.Value().(string)))
-		case *gox.ErrorField:
-			zapFields = append(zapFields, zap.Error(field.Value().(error)))
+	for _, f := range fields {
+		switch f.Value().(type) {
+		case *field.Int8Field:
+			zapFields = append(zapFields, zap.Int8(f.Key(), f.Value().(int8)))
+		case *field.IntField:
+			zapFields = append(zapFields, zap.Int(f.Key(), f.Value().(int)))
+		case *field.UintField:
+			zapFields = append(zapFields, zap.Uint(f.Key(), f.Value().(uint)))
+		case *field.Int64Field:
+			zapFields = append(zapFields, zap.Int64(f.Key(), f.Value().(int64)))
+		case *field.Float32Field:
+			zapFields = append(zapFields, zap.Float32(f.Key(), f.Value().(float32)))
+		case *field.Float64Field:
+			zapFields = append(zapFields, zap.Float64(f.Key(), f.Value().(float64)))
+		case *field.StringField:
+			zapFields = append(zapFields, zap.String(f.Key(), f.Value().(string)))
+		case *field.ErrorField:
+			zapFields = append(zapFields, zap.Error(f.Value().(error)))
 		default:
-			zapFields = append(zapFields, zap.Any(field.Key(), field.Value()))
+			zapFields = append(zapFields, zap.Any(f.Key(), f.Value()))
 		}
 	}
 
