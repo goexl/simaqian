@@ -13,6 +13,9 @@ type ZapLogger struct {
 
 // NewZapLogger 创建Zap日志记录器
 func NewZapLogger(logger *zap.Logger) *ZapLogger {
+	// 日志输出时，因为用glog封装了一层，需要在寻找调用链的时候跳过，不然会一直输出glog的调用点
+	logger = logger.WithOptions(zap.AddCallerSkip(1))
+
 	return &ZapLogger{
 		logger: logger,
 	}
