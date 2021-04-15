@@ -1,19 +1,22 @@
 package glog
 
-type GLog struct {
-}
+import (
+	`go.uber.org/zap`
+)
 
-func NewLogger(
-	sdkType SDKType,
-	andLiveConfig conf.AndLive,
-	tencentyunConfig conf.Tencentyun,
-	resty *resty.Request,
-) (live Live) {
-	switch sdkType {
-	case SDKTypeAndLive:
-		live = and.NewLive(andLiveConfig, resty)
-	case SDKTypeTencentyun:
-		live = tencentyun.NewLive(tencentyunConfig)
+// NewLogger 创建新的日志
+func NewLogger(config Config) (logger Logger, err error) {
+	switch config.Type {
+	case TypeLogrus:
+		logger = NewLogrusLogger(config.logrusLogger())
+	case TypeZap:
+		var zapLogger *zap.Logger
+
+		if zapLogger, err = config.zapLogger(); nil != err {
+			return
+		}
+
+		logger = NewZapLogger(zapLogger)
 	}
 
 	return
