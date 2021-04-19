@@ -8,7 +8,7 @@ import (
 // Config 配置
 type Config struct {
 	// Type 类型
-	Type Type `json:"type" yaml:"type" validate:"required,oneof=zap zero system logrus"`
+	Type Type `default:"zap" json:"type" yaml:"type" validate:"required,oneof=zap zero system logrus"`
 }
 
 func (c *Config) zapLogger() (logger *zap.Logger, err error) {
