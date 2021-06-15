@@ -13,6 +13,6 @@ func TestZapDebug(t *testing.T) {
 		_ = zapLogger.Sync()
 	}()
 
-	var logger Logger = NewZapLogger(zapLogger)
+	var logger Logger = newZapLogger(zapLogger)
 	logger.Warn("测试", gox.NewStringField("username", "storezhang"), gox.NewInt8Field("age", 18))
 }

@@ -5,43 +5,45 @@ import (
 	`github.com/storezhang/gox`
 )
 
-// LogrusLogger Logrus日志
-type LogrusLogger struct {
+// Logrus日志
+type logrusLogger struct {
 	logger *logrus.Logger
 }
 
-// NewLogrusLogger 创建Logrus日志记录器
-func NewLogrusLogger(logger *logrus.Logger) *LogrusLogger {
-	return &LogrusLogger{
-		logger: logger,
+// 创建Logrus日志记录器
+func newLogrusLogger(_ *options) (logger *logrusLogger, err error) {
+	logger = &logrusLogger{
+		logger: logrus.StandardLogger(),
 	}
+
+	return
 }
 
-func (ll *LogrusLogger) Debug(msg string, fields ...gox.Field) {
+func (ll *logrusLogger) Debug(msg string, fields ...gox.Field) {
 	ll.logger.WithFields(ll.parse(fields...)).Debug(msg)
 }
 
-func (ll *LogrusLogger) Info(msg string, fields ...gox.Field) {
+func (ll *logrusLogger) Info(msg string, fields ...gox.Field) {
 	ll.logger.WithFields(ll.parse(fields...)).Info(msg)
 }
 
-func (ll *LogrusLogger) Warn(msg string, fields ...gox.Field) {
+func (ll *logrusLogger) Warn(msg string, fields ...gox.Field) {
 	ll.logger.WithFields(ll.parse(fields...)).Warn(msg)
 }
 
-func (ll *LogrusLogger) Error(msg string, fields ...gox.Field) {
+func (ll *logrusLogger) Error(msg string, fields ...gox.Field) {
 	ll.logger.WithFields(ll.parse(fields...)).Error(msg)
 }
 
-func (ll *LogrusLogger) Panic(msg string, fields ...gox.Field) {
+func (ll *logrusLogger) Panic(msg string, fields ...gox.Field) {
 	ll.logger.WithFields(ll.parse(fields...)).Panic(msg)
 }
 
-func (ll *LogrusLogger) Fatal(msg string, fields ...gox.Field) {
+func (ll *logrusLogger) Fatal(msg string, fields ...gox.Field) {
 	ll.logger.WithFields(ll.parse(fields...)).Fatal(msg)
 }
 
-func (ll *LogrusLogger) parse(fields ...gox.Field) (logrusFields logrus.Fields) {
+func (ll *logrusLogger) parse(fields ...gox.Field) (logrusFields logrus.Fields) {
 	logrusFields = make(logrus.Fields, len(fields))
 	for _, field := range fields {
 		logrusFields[field.Key()] = field.Value()

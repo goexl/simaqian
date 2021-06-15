@@ -1,22 +1,19 @@
 package glog
 
-import (
-	`go.uber.org/zap`
-)
+// New 创建新的日志
+func New(opts ...option) (logger Logger, err error) {
+	options := defaultOptions()
+	for _, opt := range opts {
+		opt.apply(options)
+	}
 
-// NewLogger 创建新的日志
-func NewLogger(config Config) (logger Logger, err error) {
-	switch config.Type {
+	switch options.logType {
 	case TypeLogrus:
-		logger = NewLogrusLogger(config.logrusLogger())
+		logger, err = newLogrusLogger(options)
 	case TypeZap:
-		var zapLogger *zap.Logger
-
-		if zapLogger, err = config.zapLogger(); nil != err {
-			return
-		}
-
-		logger = NewZapLogger(zapLogger)
+		logger, err = newZapLogger(options)
+	case TypeSystem:
+		logger, err = newSystemLogger(options)
 	}
 
 	return
