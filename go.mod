@@ -1,4 +1,4 @@
-module github.com/storezhang/glog
+module github.com/storezhang/simaqian
 
 go 1.16
 
