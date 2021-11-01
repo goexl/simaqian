@@ -1,4 +1,4 @@
-package glog
+package simaqian
 
 import (
 	`testing`

@@ -1,4 +1,4 @@
-package glog
+package simaqian
 
 type options struct {
 	// 记录调用方法时增加方法过滤

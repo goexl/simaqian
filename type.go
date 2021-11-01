@@ -1,4 +1,4 @@
-package glog
+package simaqian
 
 const (
 	// TypeZap Uber Zap日志

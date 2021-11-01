@@ -1,4 +1,4 @@
-package glog
+package simaqian
 
 type optionType struct {
 	logType Type

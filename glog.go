@@ -1,19 +1,19 @@
-package glog
+package simaqian
 
 // New 创建新的日志
 func New(opts ...option) (logger Logger, err error) {
-	options := defaultOptions()
+	_options := defaultOptions()
 	for _, opt := range opts {
-		opt.apply(options)
+		opt.apply(_options)
 	}
 
-	switch options.logType {
+	switch _options.logType {
 	case TypeLogrus:
-		logger, err = newLogrusLogger(options)
+		logger, err = newLogrusLogger(_options)
 	case TypeZap:
-		logger, err = newZapLogger(options)
+		logger, err = newZapLogger(_options)
 	case TypeSystem:
-		logger, err = newSystemLogger(options)
+		logger, err = newSystemLogger(_options)
 	}
 
 	return

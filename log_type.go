@@ -1,4 +1,4 @@
-package glog
+package simaqian
 
 const (
 	// LogTypeDebug 调试日志
