@@ -31,31 +31,31 @@ func newZapLogger(options *options) (logger *zapLogger, err error) {
 	return
 }
 
-func (zl *zapLogger) Debug(msg string, fields gox.Fields) {
-	zl.logger.Debug(msg, zl.parse(fields)...)
+func (zl *zapLogger) Debug(msg string, fields ...gox.Field) {
+	zl.logger.Debug(msg, zl.parse(fields...)...)
 }
 
-func (zl *zapLogger) Info(msg string, fields gox.Fields) {
-	zl.logger.Info(msg, zl.parse(fields)...)
+func (zl *zapLogger) Info(msg string, fields ...gox.Field) {
+	zl.logger.Info(msg, zl.parse(fields...)...)
 }
 
-func (zl *zapLogger) Warn(msg string, fields gox.Fields) {
-	zl.logger.Warn(msg, zl.parse(fields)...)
+func (zl *zapLogger) Warn(msg string, fields ...gox.Field) {
+	zl.logger.Warn(msg, zl.parse(fields...)...)
 }
 
-func (zl *zapLogger) Error(msg string, fields gox.Fields) {
-	zl.logger.Error(msg, zl.parse(fields)...)
+func (zl *zapLogger) Error(msg string, fields ...gox.Field) {
+	zl.logger.Error(msg, zl.parse(fields...)...)
 }
 
-func (zl *zapLogger) Panic(msg string, fields gox.Fields) {
-	zl.logger.Panic(msg, zl.parse(fields)...)
+func (zl *zapLogger) Panic(msg string, fields ...gox.Field) {
+	zl.logger.Panic(msg, zl.parse(fields...)...)
 }
 
-func (zl *zapLogger) Fatal(msg string, fields gox.Fields) {
-	zl.logger.Fatal(msg, zl.parse(fields)...)
+func (zl *zapLogger) Fatal(msg string, fields ...gox.Field) {
+	zl.logger.Fatal(msg, zl.parse(fields...)...)
 }
 
-func (zl *zapLogger) parse(fields gox.Fields) (zapFields []zap.Field) {
+func (zl *zapLogger) parse(fields ...gox.Field) (zapFields []zap.Field) {
 	zapFields = make([]zap.Field, 0, len(fields))
 	for _, f := range fields {
 		switch f.Value().(type) {
