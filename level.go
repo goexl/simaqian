@@ -13,6 +13,7 @@ type level string
 
 // ParseLevel 解析日志级别
 func ParseLevel(_level string) (lvl *level) {
+	lvl = new(level)
 	switch level(_level) {
 	case LevelDebug:
 		*lvl = LevelDebug

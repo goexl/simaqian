@@ -15,6 +15,7 @@ type logType string
 
 // ParseType 解析类型
 func ParseType(_type string) (lt *logType) {
+	lt = new(logType)
 	switch logType(_type) {
 	case TypeLogrus:
 		*lt = TypeLogrus
