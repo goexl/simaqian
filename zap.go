@@ -8,14 +8,14 @@ import (
 	`go.uber.org/zap`
 )
 
-// Zap日志
-type zapLogger struct {
+var _ executor = (*_zap)(nil)
+
+type _zap struct {
 	logger *zap.Logger
 }
 
-// 创建Zap日志记录器
-func newZapLogger(options *options) (logger *zapLogger, err error) {
-	logger = new(zapLogger)
+func newZap(options *options) (logger *_zap, err error) {
+	logger = new(_zap)
 
 	zapOptions := []zap.Option{
 		zap.AddCallerSkip(options.skip),
@@ -31,31 +31,31 @@ func newZapLogger(options *options) (logger *zapLogger, err error) {
 	return
 }
 
-func (zl *zapLogger) Debug(msg string, fields ...gox.Field) {
-	zl.logger.Debug(msg, zl.parse(fields...)...)
+func (z *_zap) debug(msg string, fields ...gox.Field) {
+	z.logger.Debug(msg, z.parse(fields...)...)
 }
 
-func (zl *zapLogger) Info(msg string, fields ...gox.Field) {
-	zl.logger.Info(msg, zl.parse(fields...)...)
+func (z *_zap) info(msg string, fields ...gox.Field) {
+	z.logger.Info(msg, z.parse(fields...)...)
 }
 
-func (zl *zapLogger) Warn(msg string, fields ...gox.Field) {
-	zl.logger.Warn(msg, zl.parse(fields...)...)
+func (z *_zap) warn(msg string, fields ...gox.Field) {
+	z.logger.Warn(msg, z.parse(fields...)...)
 }
 
-func (zl *zapLogger) Error(msg string, fields ...gox.Field) {
-	zl.logger.Error(msg, zl.parse(fields...)...)
+func (z *_zap) error(msg string, fields ...gox.Field) {
+	z.logger.Error(msg, z.parse(fields...)...)
 }
 
-func (zl *zapLogger) Panic(msg string, fields ...gox.Field) {
-	zl.logger.Panic(msg, zl.parse(fields...)...)
+func (z *_zap) panic(msg string, fields ...gox.Field) {
+	z.logger.Panic(msg, z.parse(fields...)...)
 }
 
-func (zl *zapLogger) Fatal(msg string, fields ...gox.Field) {
-	zl.logger.Fatal(msg, zl.parse(fields...)...)
+func (z *_zap) fatal(msg string, fields ...gox.Field) {
+	z.logger.Fatal(msg, z.parse(fields...)...)
 }
 
-func (zl *zapLogger) parse(fields ...gox.Field) (zapFields []zap.Field) {
+func (z *_zap) parse(fields ...gox.Field) (zapFields []zap.Field) {
 	zapFields = make([]zap.Field, 0, len(fields))
 	for _, f := range fields {
 		switch f.Value().(type) {

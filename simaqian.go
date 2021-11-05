@@ -2,21 +2,7 @@ package simaqian
 
 // New 创建新的日志
 func New(opts ...option) (logger Logger, err error) {
-	_options := defaultOptions()
-	for _, opt := range opts {
-		opt.apply(_options)
-	}
-
-	switch _options.logType {
-	case TypeLogrus:
-		logger, err = newLogrusLogger(_options)
-	case TypeZap:
-		logger, err = newZapLogger(_options)
-	case TypeSystem:
-		logger, err = newSystemLogger(_options)
-	}
-
-	return
+	return newTemplate(opts...)
 }
 
 // Must 必须返回日志

@@ -6,6 +6,9 @@ import (
 
 // Logger 日志接口
 type Logger interface {
+	// Sets 设置新的配置项
+	Sets(opts ...option)
+
 	// Debug 记录调试日志
 	Debug(msg string, fields ...gox.Field)
 

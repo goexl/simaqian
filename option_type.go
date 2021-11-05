@@ -1,7 +1,14 @@
 package simaqian
 
 type optionType struct {
-	logType Type
+	logType logType
+}
+
+// Types 配置日志类型
+func Types(_type string) *optionType {
+	return &optionType{
+		logType: *ParseType(_type),
+	}
 }
 
 // Zap 使用Zap日志

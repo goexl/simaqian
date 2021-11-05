@@ -1,19 +1,30 @@
 package simaqian
 
 const (
-	// LogTypeDebug 调试日志
-	LogTypeDebug LogType = "debug"
-	// LogTypeInfo 普通信息日志
-	LogTypeInfo LogType = "debug"
-	// LogTypeWarn 警告日志
-	LogTypeWarn LogType = "debug"
-	// LogTypeError 错误日志
-	LogTypeError LogType = "debug"
-	// LogTypePanic 异常日志，程序会退出，可以使用recover机制来阻止程序退出
-	LogTypePanic LogType = "debug"
-	// LogTypeFatal 致命错误日志，程序会退出
-	LogTypeFatal LogType = "debug"
+	// TypeZap Uber Zap日志
+	TypeZap logType = "zap"
+	// TypeLogrus Logrus日志
+	TypeLogrus logType = "logrus"
+	// TypeZero ZeroLog日志
+	TypeZero logType = "zero"
+	// TypeSystem 系统日志
+	TypeSystem logType = "system"
 )
 
-// LogType 日志类型
-type LogType string
+type logType string
+
+// ParseType 解析类型
+func ParseType(_type string) (lt *logType) {
+	switch logType(_type) {
+	case TypeLogrus:
+		*lt = TypeLogrus
+	case TypeZap:
+		*lt = TypeZap
+	case TypeSystem:
+		*lt = TypeSystem
+	case TypeZero:
+		*lt = TypeZero
+	}
+
+	return
+}

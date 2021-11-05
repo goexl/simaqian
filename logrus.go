@@ -5,45 +5,45 @@ import (
 	`github.com/storezhang/gox`
 )
 
-// Logrus日志
-type logrusLogger struct {
+var _ executor = (*_logrus)(nil)
+
+type _logrus struct {
 	logger *logrus.Logger
 }
 
-// 创建Logrus日志记录器
-func newLogrusLogger(_ *options) (logger *logrusLogger, err error) {
-	logger = &logrusLogger{
+func newLogrus(_ *options) (logger *_logrus, err error) {
+	logger = &_logrus{
 		logger: logrus.StandardLogger(),
 	}
 
 	return
 }
 
-func (ll *logrusLogger) Debug(msg string, fields ...gox.Field) {
-	ll.logger.WithFields(ll.parse(fields...)).Debug(msg)
+func (l *_logrus) debug(msg string, fields ...gox.Field) {
+	l.logger.WithFields(l.parse(fields...)).Debug(msg)
 }
 
-func (ll *logrusLogger) Info(msg string, fields ...gox.Field) {
-	ll.logger.WithFields(ll.parse(fields...)).Info(msg)
+func (l *_logrus) info(msg string, fields ...gox.Field) {
+	l.logger.WithFields(l.parse(fields...)).Info(msg)
 }
 
-func (ll *logrusLogger) Warn(msg string, fields ...gox.Field) {
-	ll.logger.WithFields(ll.parse(fields...)).Warn(msg)
+func (l *_logrus) warn(msg string, fields ...gox.Field) {
+	l.logger.WithFields(l.parse(fields...)).Warn(msg)
 }
 
-func (ll *logrusLogger) Error(msg string, fields ...gox.Field) {
-	ll.logger.WithFields(ll.parse(fields...)).Error(msg)
+func (l *_logrus) error(msg string, fields ...gox.Field) {
+	l.logger.WithFields(l.parse(fields...)).Error(msg)
 }
 
-func (ll *logrusLogger) Panic(msg string, fields ...gox.Field) {
-	ll.logger.WithFields(ll.parse(fields...)).Panic(msg)
+func (l *_logrus) panic(msg string, fields ...gox.Field) {
+	l.logger.WithFields(l.parse(fields...)).Panic(msg)
 }
 
-func (ll *logrusLogger) Fatal(msg string, fields ...gox.Field) {
-	ll.logger.WithFields(ll.parse(fields...)).Fatal(msg)
+func (l *_logrus) fatal(msg string, fields ...gox.Field) {
+	l.logger.WithFields(l.parse(fields...)).Fatal(msg)
 }
 
-func (ll *logrusLogger) parse(fields ...gox.Field) (logrusFields logrus.Fields) {
+func (l *_logrus) parse(fields ...gox.Field) (logrusFields logrus.Fields) {
 	logrusFields = make(logrus.Fields, len(fields))
 	for _, field := range fields {
 		logrusFields[field.Key()] = field.Value()
