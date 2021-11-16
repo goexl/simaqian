@@ -39,7 +39,7 @@ func (t *template) Sets(opts ...option) {
 }
 
 func (t *template) Debug(msg string, fields ...gox.Field) {
-	if t.options.level.rank() >= LevelDebug.rank() {
+	if t.options.level.rank() > LevelDebug.rank() {
 		return
 	}
 
@@ -56,7 +56,7 @@ func (t *template) Debug(msg string, fields ...gox.Field) {
 }
 
 func (t *template) Info(msg string, fields ...gox.Field) {
-	if t.options.level.rank() >= LevelInfo.rank() {
+	if t.options.level.rank() > LevelInfo.rank() {
 		return
 	}
 
@@ -73,7 +73,7 @@ func (t *template) Info(msg string, fields ...gox.Field) {
 }
 
 func (t *template) Warn(msg string, fields ...gox.Field) {
-	if t.options.level.rank() >= LevelWarn.rank() {
+	if t.options.level.rank() > LevelWarn.rank() {
 		return
 	}
 
@@ -90,7 +90,7 @@ func (t *template) Warn(msg string, fields ...gox.Field) {
 }
 
 func (t *template) Error(msg string, fields ...gox.Field) {
-	if t.options.level.rank() >= LevelError.rank() {
+	if t.options.level.rank() > LevelError.rank() {
 		return
 	}
 
@@ -107,7 +107,7 @@ func (t *template) Error(msg string, fields ...gox.Field) {
 }
 
 func (t *template) Panic(msg string, fields ...gox.Field) {
-	if t.options.level.rank() >= LevelPanic.rank() {
+	if t.options.level.rank() > LevelPanic.rank() {
 		return
 	}
 
@@ -124,7 +124,7 @@ func (t *template) Panic(msg string, fields ...gox.Field) {
 }
 
 func (t *template) Fatal(msg string, fields ...gox.Field) {
-	if t.options.level.rank() >= LevelFatal.rank() {
+	if t.options.level.rank() > LevelFatal.rank() {
 		return
 	}
 
