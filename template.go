@@ -38,6 +38,10 @@ func (t *template) Sets(opts ...option) {
 	}
 }
 
+func (t *template) Level() level {
+	return t.options.level
+}
+
 func (t *template) Debug(msg string, fields ...gox.Field) {
 	if t.options.level.rank() > LevelDebug.rank() {
 		return

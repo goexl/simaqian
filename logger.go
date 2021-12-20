@@ -9,6 +9,9 @@ type Logger interface {
 	// Sets 设置新的配置项
 	Sets(opts ...option)
 
+	// Level 现在的日志等级
+	Level() level
+
 	// Debug 记录调试日志
 	Debug(msg string, fields ...gox.Field)
 
