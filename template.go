@@ -158,18 +158,18 @@ func (t *template) Fatal(msg string, fields ...gox.Field) {
 }
 
 func (t *template) addStacks(fields *[]gox.Field) {
-	if 0 >= t.options.stack {
+	if nil == t.options.stacktrace {
 		return
 	}
 
-	pc := make([]uintptr, t.options.stack+1)
-	count := runtime.Callers(t.options.skip+1, pc)
+	pc := make([]uintptr, t.options.stacktrace.stack+1)
+	count := runtime.Callers(t.options.skip+1+t.options.stacktrace.skip, pc)
 	frames := runtime.CallersFrames(pc[:count])
 
 	stacks := make([]string, 0, 0)
 	for {
 		frame, more := frames.Next()
-		stacks = append(stacks, fmt.Sprintf(`%s:%d-%s`, filepath.Base(frame.File), frame.Line, frame.Function))
+		stacks = append(stacks, fmt.Sprintf(`%s[%s]:%d`, filepath.Base(frame.File), frame.Function, frame.Line))
 		if !more {
 			break
 		}

@@ -1,16 +1,19 @@
 package simaqian
 
 type optionStacktrace struct {
-	stack int
+	stacktrace *stacktrace
 }
 
 // Stacktrace 配置打印调用堆栈
-func Stacktrace(stack int) *optionStacktrace {
+func Stacktrace(skip int, stack int) *optionStacktrace {
 	return &optionStacktrace{
-		stack: stack,
+		stacktrace: &stacktrace{
+			skip:  skip,
+			stack: stack,
+		},
 	}
 }
 
 func (s *optionStacktrace) apply(options *options) {
-	options.stack = s.stack
+	options.stacktrace = s.stacktrace
 }
