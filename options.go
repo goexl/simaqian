@@ -4,6 +4,7 @@ type options struct {
 	level   level
 	skip    int
 	logType logType
+	stack   int
 }
 
 func defaultOptions() *options {
@@ -11,5 +12,6 @@ func defaultOptions() *options {
 		level:   LevelInfo,
 		skip:    1,
 		logType: TypeZap,
+		stack:   0,
 	}
 }

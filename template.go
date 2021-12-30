@@ -1,7 +1,14 @@
 package simaqian
 
 import (
+	`fmt`
+	`path/filepath`
+	`runtime`
+	`sort`
+	`strings`
+
 	`github.com/storezhang/gox`
+	`github.com/storezhang/gox/field`
 )
 
 type template struct {
@@ -47,6 +54,7 @@ func (t *template) Debug(msg string, fields ...gox.Field) {
 		return
 	}
 
+	t.addStacks(&fields)
 	switch t.options.logType {
 	case TypeZap:
 		t.zap.debug(msg, fields...)
@@ -64,6 +72,7 @@ func (t *template) Info(msg string, fields ...gox.Field) {
 		return
 	}
 
+	t.addStacks(&fields)
 	switch t.options.logType {
 	case TypeZap:
 		t.zap.info(msg, fields...)
@@ -81,6 +90,7 @@ func (t *template) Warn(msg string, fields ...gox.Field) {
 		return
 	}
 
+	t.addStacks(&fields)
 	switch t.options.logType {
 	case TypeZap:
 		t.zap.warn(msg, fields...)
@@ -98,6 +108,7 @@ func (t *template) Error(msg string, fields ...gox.Field) {
 		return
 	}
 
+	t.addStacks(&fields)
 	switch t.options.logType {
 	case TypeZap:
 		t.zap.error(msg, fields...)
@@ -115,6 +126,7 @@ func (t *template) Panic(msg string, fields ...gox.Field) {
 		return
 	}
 
+	t.addStacks(&fields)
 	switch t.options.logType {
 	case TypeZap:
 		t.zap.panic(msg, fields...)
@@ -132,6 +144,7 @@ func (t *template) Fatal(msg string, fields ...gox.Field) {
 		return
 	}
 
+	t.addStacks(&fields)
 	switch t.options.logType {
 	case TypeZap:
 		t.zap.fatal(msg, fields...)
@@ -142,4 +155,27 @@ func (t *template) Fatal(msg string, fields ...gox.Field) {
 	case TypeZero:
 		t.zero.fatal(msg, fields...)
 	}
+}
+
+func (t *template) addStacks(fields *[]gox.Field) {
+	if 0 >= t.options.stack {
+		return
+	}
+
+	pc := make([]uintptr, t.options.stack+1)
+	count := runtime.Callers(t.options.skip+1, pc)
+	frames := runtime.CallersFrames(pc[:count])
+
+	stacks := make([]string, 0, 0)
+	for {
+		frame, more := frames.Next()
+		stacks = append(stacks, fmt.Sprintf(`%s:%d-%s`, filepath.Base(frame.File), frame.Line, frame.Function))
+		if !more {
+			break
+		}
+	}
+	sort.SliceStable(stacks, func(i, j int) bool {
+		return true
+	})
+	*fields = append(*fields, field.String(`stacks`, strings.Join(stacks, ` -> `)))
 }
