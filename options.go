@@ -10,7 +10,7 @@ type options struct {
 func defaultOptions() *options {
 	return &options{
 		level:   LevelInfo,
-		skip:    1,
+		skip:    2,
 		logType: TypeZap,
 	}
 }
