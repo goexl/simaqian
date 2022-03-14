@@ -1,5 +1,11 @@
 package simaqian
 
+var (
+	_ = Skip
+
+	_ option = (*optionSkip)(nil)
+)
+
 type optionSkip struct {
 	skip int
 }
@@ -11,6 +17,6 @@ func Skip(skip int) *optionSkip {
 	}
 }
 
-func (t *optionSkip) apply(options *options) {
-	options.skip = t.skip
+func (s *optionSkip) apply(options *options) {
+	options.skip = s.skip
 }

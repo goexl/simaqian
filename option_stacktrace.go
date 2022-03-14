@@ -1,5 +1,11 @@
 package simaqian
 
+var (
+	_ = Stacktrace
+
+	_ option = (*optionStacktrace)(nil)
+)
+
 type optionStacktrace struct {
 	stacktrace *stacktrace
 }

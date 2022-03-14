@@ -1,5 +1,12 @@
 package simaqian
 
+var (
+	_ = Level
+	_ = Levels
+
+	_ option = (*optionLevel)(nil)
+)
+
 type optionLevel struct {
 	level level
 }

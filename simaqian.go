@@ -1,5 +1,7 @@
 package simaqian
 
+var _ = Must
+
 // New 创建新的日志
 func New(opts ...option) (logger Logger, err error) {
 	return newTemplate(opts...)

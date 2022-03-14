@@ -1,5 +1,14 @@
 package simaqian
 
+var (
+	_ = Types
+	_ = Zap
+	_ = Logrus
+	_ = System
+
+	_ option = (*optionType)(nil)
+)
+
 type optionType struct {
 	logType logType
 }
