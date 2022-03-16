@@ -3,8 +3,8 @@ package simaqian
 import (
 	`time`
 
-	`github.com/storezhang/gox`
-	`github.com/storezhang/gox/field`
+	`github.com/goexl/gox`
+	`github.com/goexl/gox/field`
 	`go.uber.org/zap`
 )
 

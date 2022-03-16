@@ -3,8 +3,8 @@ module github.com/goexl/simaqian
 go 1.17
 
 require (
+	github.com/goexl/gox v0.0.2
 	github.com/sirupsen/logrus v1.8.1
-	github.com/storezhang/gox v1.8.4
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0

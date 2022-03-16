@@ -1,8 +1,8 @@
 package simaqian
 
 import (
+	`github.com/goexl/gox`
 	`github.com/sirupsen/logrus`
-	`github.com/storezhang/gox`
 )
 
 var _ executor = (*_logrus)(nil)

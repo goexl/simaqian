@@ -1,7 +1,7 @@
 package simaqian
 
 import (
-	`github.com/storezhang/gox`
+	`github.com/goexl/gox`
 )
 
 // Logger 日志接口
