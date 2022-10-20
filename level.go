@@ -1,13 +1,12 @@
 package simaqian
 
 const (
-	LevelUnknown level = `unknown`
-	LevelDebug   level = `debug`
-	LevelInfo    level = `info`
-	LevelWarn    level = `warn`
-	LevelError   level = `error`
-	LevelPanic   level = `panic`
-	LevelFatal   level = `fatal`
+	LevelDebug level = `debug`
+	LevelInfo  level = `info`
+	LevelWarn  level = `warn`
+	LevelError level = `error`
+	LevelPanic level = `panic`
+	LevelFatal level = `fatal`
 )
 
 type level string

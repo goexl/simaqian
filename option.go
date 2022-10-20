@@ -12,6 +12,9 @@ type (
 		skip       int
 		logType    logType
 		stacktrace *stacktrace
+
+		outputs []writer
+		errors  []writer
 	}
 )
 

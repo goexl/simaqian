@@ -1,11 +1,12 @@
 package simaqian
 
 import (
-	`time`
+	"encoding/json"
+	"time"
 
-	`github.com/goexl/gox`
-	`github.com/goexl/gox/field`
-	`go.uber.org/zap`
+	"github.com/goexl/gox"
+	"github.com/goexl/gox/field"
+	"go.uber.org/zap"
 )
 
 var _ executor = (*_zap)(nil)
@@ -17,11 +18,27 @@ type _zap struct {
 func newZap(options *options) (logger *_zap, err error) {
 	logger = new(_zap)
 
+	config := zap.NewDevelopmentConfig()
+	outputsSize := len(options.outputs)
+	if 0 != outputsSize {
+		config.OutputPaths = make([]string, 0, outputsSize)
+		for _, output := range options.outputs {
+			config.OutputPaths = append(config.OutputPaths, string(output))
+		}
+	}
+
+	errorsSize := len(options.errors)
+	if 0 != errorsSize {
+		config.ErrorOutputPaths = make([]string, 0, errorsSize)
+		for _, _error := range options.errors {
+			config.ErrorOutputPaths = append(config.OutputPaths, string(_error))
+		}
+	}
+
 	zapOptions := []zap.Option{
 		zap.AddCallerSkip(options.skip),
 	}
-	// 日志输出时，因为用glog封装了一层，需要在寻找调用链的时候跳过，不然会一直输出glog的调用点
-	if logger.logger, err = zap.NewProduction(zapOptions...); nil != err {
+	if logger.logger, err = config.Build(zapOptions...); nil != err {
 		return
 	}
 	defer func() {
@@ -98,7 +115,11 @@ func (z *_zap) parse(fields ...gox.Field) (zapFields []zap.Field) {
 		case *field.ErrorField:
 			zapFields = append(zapFields, zap.Error(f.Value().(error)))
 		default:
-			zapFields = append(zapFields, zap.Any(f.Key(), f.Value()))
+			if bytes, err := json.Marshal(f.Value()); nil == err {
+				zapFields = append(zapFields, zap.ByteString(f.Key(), bytes))
+			} else {
+				zapFields = append(zapFields, zap.Any(f.Key(), f.Value()))
+			}
 		}
 	}
 
