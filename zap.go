@@ -1,7 +1,7 @@
 package simaqian
 
 import (
-	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/goexl/gox"
@@ -104,6 +104,10 @@ func (z *_zap) parse(fields ...gox.Field) (zapFields []zap.Field) {
 			zapFields = append(zapFields, zap.Stringp(f.Key(), f.Value().(*string)))
 		case *field.StringsField:
 			zapFields = append(zapFields, zap.Strings(f.Key(), f.Value().([]string)))
+		case *field.StringerField:
+			zapFields = append(zapFields, zap.Stringer(f.Key(), f.Value().(fmt.Stringer)))
+		case *field.StringersField:
+			zapFields = append(zapFields, zap.Stringers(f.Key(), f.Value().([]fmt.Stringer)))
 		case *field.TimeField:
 			zapFields = append(zapFields, zap.Timep(f.Key(), f.Value().(*time.Time)))
 		case *field.TimesField:
@@ -115,11 +119,7 @@ func (z *_zap) parse(fields ...gox.Field) (zapFields []zap.Field) {
 		case *field.ErrorField:
 			zapFields = append(zapFields, zap.Error(f.Value().(error)))
 		default:
-			if bytes, err := json.Marshal(f.Value()); nil == err {
-				zapFields = append(zapFields, zap.ByteString(f.Key(), bytes))
-			} else {
-				zapFields = append(zapFields, zap.Any(f.Key(), f.Value()))
-			}
+			zapFields = append(zapFields, zap.Any(f.Key(), f.Value()))
 		}
 	}
 
