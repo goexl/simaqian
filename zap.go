@@ -19,7 +19,6 @@ func newZap(options *options) (logger *_zap, err error) {
 	logger = new(_zap)
 
 	config := zap.NewDevelopmentConfig()
-	config.EncoderConfig.SkipLineEnding = true
 	outputsSize := len(options.outputs)
 	if 0 != outputsSize {
 		config.OutputPaths = make([]string, 0, outputsSize)
