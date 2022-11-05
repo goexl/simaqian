@@ -75,6 +75,10 @@ func (z *_zap) fatal(msg string, fields ...gox.Field) {
 func (z *_zap) parse(fields ...gox.Field) (zapFields []zap.Field) {
 	zapFields = make([]zap.Field, 0, len(fields))
 	for _, f := range fields {
+		if `` == f.Key() || nil == f.Value() {
+			continue
+		}
+
 		switch f.(type) {
 		case *field.BoolField:
 			zapFields = append(zapFields, zap.Boolp(f.Key(), f.Value().(*bool)))
