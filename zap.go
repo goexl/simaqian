@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/goexl/gox"
-	"github.com/goexl/gox/field"
 	"go.uber.org/zap"
 )
 
@@ -48,80 +47,110 @@ func newZap(options *options) (logger *_zap, err error) {
 	return
 }
 
-func (z *_zap) debug(msg string, fields ...gox.Field) {
+func (z *_zap) debug(msg string, fields ...gox.Field[any]) {
 	z.logger.Debug(msg, z.parse(fields...)...)
 }
 
-func (z *_zap) info(msg string, fields ...gox.Field) {
+func (z *_zap) info(msg string, fields ...gox.Field[any]) {
 	z.logger.Info(msg, z.parse(fields...)...)
 }
 
-func (z *_zap) warn(msg string, fields ...gox.Field) {
+func (z *_zap) warn(msg string, fields ...gox.Field[any]) {
 	z.logger.Warn(msg, z.parse(fields...)...)
 }
 
-func (z *_zap) error(msg string, fields ...gox.Field) {
+func (z *_zap) error(msg string, fields ...gox.Field[any]) {
 	z.logger.Error(msg, z.parse(fields...)...)
 }
 
-func (z *_zap) panic(msg string, fields ...gox.Field) {
+func (z *_zap) panic(msg string, fields ...gox.Field[any]) {
 	z.logger.Panic(msg, z.parse(fields...)...)
 }
 
-func (z *_zap) fatal(msg string, fields ...gox.Field) {
+func (z *_zap) fatal(msg string, fields ...gox.Field[any]) {
 	z.logger.Fatal(msg, z.parse(fields...)...)
 }
 
-func (z *_zap) parse(fields ...gox.Field) (zapFields []zap.Field) {
+func (z *_zap) parse(fields ...gox.Field[any]) (zapFields []zap.Field) {
 	zapFields = make([]zap.Field, 0, len(fields))
 	for _, f := range fields {
 		if `` == f.Key() || nil == f.Value() {
 			continue
 		}
 
-		switch f.(type) {
-		case *field.BoolField:
-			zapFields = append(zapFields, zap.Boolp(f.Key(), f.Value().(*bool)))
-		case *field.BoolsField:
-			zapFields = append(zapFields, zap.Bools(f.Key(), f.Value().([]bool)))
-		case *field.Int8Field:
-			zapFields = append(zapFields, zap.Int8p(f.Key(), f.Value().(*int8)))
-		case *field.IntField:
-			zapFields = append(zapFields, zap.Intp(f.Key(), f.Value().(*int)))
-		case *field.IntsField:
-			zapFields = append(zapFields, zap.Ints(f.Key(), f.Value().([]int)))
-		case *field.UintField:
-			zapFields = append(zapFields, zap.Uintp(f.Key(), f.Value().(*uint)))
-		case *field.UintsField:
-			zapFields = append(zapFields, zap.Uints(f.Key(), f.Value().([]uint)))
-		case *field.Int64Field:
-			zapFields = append(zapFields, zap.Int64p(f.Key(), f.Value().(*int64)))
-		case *field.Int64sField:
-			zapFields = append(zapFields, zap.Int64s(f.Key(), f.Value().([]int64)))
-		case *field.Float32Field:
-			zapFields = append(zapFields, zap.Float32p(f.Key(), f.Value().(*float32)))
-		case *field.Float64Field:
-			zapFields = append(zapFields, zap.Float64p(f.Key(), f.Value().(*float64)))
-		case *field.Float64sField:
-			zapFields = append(zapFields, zap.Float64s(f.Key(), f.Value().([]float64)))
-		case *field.StringField:
-			zapFields = append(zapFields, zap.Stringp(f.Key(), f.Value().(*string)))
-		case *field.StringsField:
-			zapFields = append(zapFields, zap.Strings(f.Key(), f.Value().([]string)))
-		case *field.StringerField:
-			zapFields = append(zapFields, zap.Stringer(f.Key(), f.Value().(fmt.Stringer)))
-		case *field.StringersField:
-			zapFields = append(zapFields, zap.Stringers(f.Key(), f.Value().([]fmt.Stringer)))
-		case *field.TimeField:
-			zapFields = append(zapFields, zap.Timep(f.Key(), f.Value().(*time.Time)))
-		case *field.TimesField:
-			zapFields = append(zapFields, zap.Times(f.Key(), f.Value().([]time.Time)))
-		case *field.DurationField:
-			zapFields = append(zapFields, zap.Durationp(f.Key(), f.Value().(*time.Duration)))
-		case *field.DurationsField:
-			zapFields = append(zapFields, zap.Durations(f.Key(), f.Value().([]time.Duration)))
-		case *field.ErrorField:
-			zapFields = append(zapFields, zap.Error(f.Value().(error)))
+		switch value := f.Value().(type) {
+		case bool:
+			zapFields = append(zapFields, zap.Bool(f.Key(), value))
+		case *bool:
+			zapFields = append(zapFields, zap.Boolp(f.Key(), value))
+		case []bool:
+			zapFields = append(zapFields, zap.Bools(f.Key(), value))
+		case *[]bool:
+			zapFields = append(zapFields, zap.Bools(f.Key(), *value))
+		case int8:
+			zapFields = append(zapFields, zap.Int8(f.Key(), value))
+		case *int8:
+			zapFields = append(zapFields, zap.Int8p(f.Key(), value))
+		case int:
+			zapFields = append(zapFields, zap.Int(f.Key(), value))
+		case *int:
+			zapFields = append(zapFields, zap.Intp(f.Key(), value))
+		case []int:
+			zapFields = append(zapFields, zap.Ints(f.Key(), value))
+		case *[]int:
+			zapFields = append(zapFields, zap.Ints(f.Key(), *value))
+		case uint:
+			zapFields = append(zapFields, zap.Uint(f.Key(), value))
+		case *uint:
+			zapFields = append(zapFields, zap.Uintp(f.Key(), value))
+		case []uint:
+			zapFields = append(zapFields, zap.Uints(f.Key(), value))
+		case *[]uint:
+			zapFields = append(zapFields, zap.Uints(f.Key(), *value))
+		case int64:
+			zapFields = append(zapFields, zap.Int64(f.Key(), value))
+		case *int64:
+			zapFields = append(zapFields, zap.Int64p(f.Key(), value))
+		case []int64:
+			zapFields = append(zapFields, zap.Int64s(f.Key(), value))
+		case *[]int64:
+			zapFields = append(zapFields, zap.Int64s(f.Key(), *value))
+		case float32:
+			zapFields = append(zapFields, zap.Float32(f.Key(), value))
+		case *float32:
+			zapFields = append(zapFields, zap.Float32p(f.Key(), value))
+		case float64:
+			zapFields = append(zapFields, zap.Float64(f.Key(), value))
+		case *float64:
+			zapFields = append(zapFields, zap.Float64p(f.Key(), value))
+		case []float64:
+			zapFields = append(zapFields, zap.Float64s(f.Key(), value))
+		case *[]float64:
+			zapFields = append(zapFields, zap.Float64s(f.Key(), *value))
+		case *string:
+			zapFields = append(zapFields, zap.Stringp(f.Key(), value))
+		case []string:
+			zapFields = append(zapFields, zap.Strings(f.Key(), value))
+		case *[]string:
+			zapFields = append(zapFields, zap.Strings(f.Key(), *value))
+		case fmt.Stringer:
+			zapFields = append(zapFields, zap.Stringer(f.Key(), value))
+		case []fmt.Stringer:
+			zapFields = append(zapFields, zap.Stringers(f.Key(), value))
+		case time.Time:
+			zapFields = append(zapFields, zap.Time(f.Key(), value))
+		case *time.Time:
+			zapFields = append(zapFields, zap.Timep(f.Key(), value))
+		case []time.Time:
+			zapFields = append(zapFields, zap.Times(f.Key(), value))
+		case time.Duration:
+			zapFields = append(zapFields, zap.Duration(f.Key(), value))
+		case *time.Duration:
+			zapFields = append(zapFields, zap.Durationp(f.Key(), value))
+		case []time.Duration:
+			zapFields = append(zapFields, zap.Durations(f.Key(), value))
+		case error:
+			zapFields = append(zapFields, zap.Error(value))
 		default:
 			zapFields = append(zapFields, zap.Any(f.Key(), f.Value()))
 		}

@@ -1,14 +1,14 @@
 package simaqian
 
 import (
-	`fmt`
-	`path/filepath`
-	`runtime`
-	`sort`
-	`strings`
+	"fmt"
+	"path/filepath"
+	"runtime"
+	"sort"
+	"strings"
 
-	`github.com/goexl/gox`
-	`github.com/goexl/gox/field`
+	"github.com/goexl/gox"
+	"github.com/goexl/gox/field"
 )
 
 type template struct {
@@ -49,7 +49,7 @@ func (t *template) Level() level {
 	return t.options.level
 }
 
-func (t *template) Debug(msg string, fields ...gox.Field) {
+func (t *template) Debug(msg string, fields ...gox.Field[any]) {
 	if t.options.level.rank() > LevelDebug.rank() {
 		return
 	}
@@ -67,7 +67,7 @@ func (t *template) Debug(msg string, fields ...gox.Field) {
 	}
 }
 
-func (t *template) Info(msg string, fields ...gox.Field) {
+func (t *template) Info(msg string, fields ...gox.Field[any]) {
 	if t.options.level.rank() > LevelInfo.rank() {
 		return
 	}
@@ -85,7 +85,7 @@ func (t *template) Info(msg string, fields ...gox.Field) {
 	}
 }
 
-func (t *template) Warn(msg string, fields ...gox.Field) {
+func (t *template) Warn(msg string, fields ...gox.Field[any]) {
 	if t.options.level.rank() > LevelWarn.rank() {
 		return
 	}
@@ -103,7 +103,7 @@ func (t *template) Warn(msg string, fields ...gox.Field) {
 	}
 }
 
-func (t *template) Error(msg string, fields ...gox.Field) {
+func (t *template) Error(msg string, fields ...gox.Field[any]) {
 	if t.options.level.rank() > LevelError.rank() {
 		return
 	}
@@ -121,7 +121,7 @@ func (t *template) Error(msg string, fields ...gox.Field) {
 	}
 }
 
-func (t *template) Panic(msg string, fields ...gox.Field) {
+func (t *template) Panic(msg string, fields ...gox.Field[any]) {
 	if t.options.level.rank() > LevelPanic.rank() {
 		return
 	}
@@ -139,7 +139,7 @@ func (t *template) Panic(msg string, fields ...gox.Field) {
 	}
 }
 
-func (t *template) Fatal(msg string, fields ...gox.Field) {
+func (t *template) Fatal(msg string, fields ...gox.Field[any]) {
 	if t.options.level.rank() > LevelFatal.rank() {
 		return
 	}
@@ -157,7 +157,7 @@ func (t *template) Fatal(msg string, fields ...gox.Field) {
 	}
 }
 
-func (t *template) addStacks(fields *[]gox.Field) {
+func (t *template) addStacks(fields *[]gox.Field[any]) {
 	if nil == t.options.stacktrace {
 		return
 	}
@@ -177,5 +177,5 @@ func (t *template) addStacks(fields *[]gox.Field) {
 	sort.SliceStable(stacks, func(i, j int) bool {
 		return true
 	})
-	*fields = append(*fields, field.String(`stacks`, strings.Join(stacks, ` -> `)))
+	*fields = append(*fields, field.New[string](`stacks`, strings.Join(stacks, ` -> `)))
 }

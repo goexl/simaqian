@@ -5,15 +5,15 @@ import (
 )
 
 type executor interface {
-	debug(msg string, fields ...gox.Field)
+	debug(msg string, fields ...gox.Field[any])
 
-	info(msg string, fields ...gox.Field)
+	info(msg string, fields ...gox.Field[any])
 
-	warn(msg string, fields ...gox.Field)
+	warn(msg string, fields ...gox.Field[any])
 
-	error(msg string, fields ...gox.Field)
+	error(msg string, fields ...gox.Field[any])
 
-	panic(msg string, fields ...gox.Field)
+	panic(msg string, fields ...gox.Field[any])
 
-	fatal(msg string, fields ...gox.Field)
+	fatal(msg string, fields ...gox.Field[any])
 }

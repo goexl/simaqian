@@ -1,10 +1,10 @@
 package simaqian
 
 import (
-	`fmt`
-	`log`
+	"fmt"
+	"log"
 
-	`github.com/goexl/gox`
+	"github.com/goexl/gox"
 )
 
 var _ executor = (*system)(nil)
@@ -21,31 +21,31 @@ func newSystem(_ *options) (logger *system, err error) {
 	return
 }
 
-func (s *system) debug(msg string, fields ...gox.Field) {
+func (s *system) debug(msg string, fields ...gox.Field[any]) {
 	s.logger.Println(s.parse(LevelDebug, msg, fields...))
 }
 
-func (s *system) info(msg string, fields ...gox.Field) {
+func (s *system) info(msg string, fields ...gox.Field[any]) {
 	s.logger.Println(s.parse(LevelInfo, msg, fields...))
 }
 
-func (s *system) warn(msg string, fields ...gox.Field) {
+func (s *system) warn(msg string, fields ...gox.Field[any]) {
 	s.logger.Println(s.parse(LevelWarn, msg, fields...))
 }
 
-func (s *system) error(msg string, fields ...gox.Field) {
+func (s *system) error(msg string, fields ...gox.Field[any]) {
 	s.logger.Println(s.parse(LevelError, msg, fields...))
 }
 
-func (s *system) panic(msg string, fields ...gox.Field) {
+func (s *system) panic(msg string, fields ...gox.Field[any]) {
 	s.logger.Println(s.parse(LevelPanic, msg, fields...))
 }
 
-func (s *system) fatal(msg string, fields ...gox.Field) {
+func (s *system) fatal(msg string, fields ...gox.Field[any]) {
 	s.logger.Println(s.parse(LevelFatal, msg, fields...))
 }
 
-func (s *system) parse(level level, msg string, fields ...gox.Field) (args []interface{}) {
+func (s *system) parse(level level, msg string, fields ...gox.Field[any]) (args []interface{}) {
 	args = make([]interface{}, 0, len(fields)+1)
 	args = append(args, level)
 	args = append(args, msg)
