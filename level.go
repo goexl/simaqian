@@ -9,24 +9,25 @@ const (
 	LevelFatal level = "fatal"
 )
 
+var _ = ParseLevel
+
 type level string
 
 // ParseLevel 解析日志级别
-func ParseLevel(_level string) (lvl *level) {
-	lvl = new(level)
+func ParseLevel(_level string) (lvl level) {
 	switch level(_level) {
 	case LevelDebug:
-		*lvl = LevelDebug
+		lvl = LevelDebug
 	case LevelInfo:
-		*lvl = LevelInfo
+		lvl = LevelInfo
 	case LevelWarn:
-		*lvl = LevelWarn
+		lvl = LevelWarn
 	case LevelError:
-		*lvl = LevelError
+		lvl = LevelError
 	case LevelPanic:
-		*lvl = LevelPanic
+		lvl = LevelPanic
 	case LevelFatal:
-		*lvl = LevelFatal
+		lvl = LevelFatal
 	}
 
 	return
