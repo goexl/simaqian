@@ -11,12 +11,10 @@ type _logrus struct {
 	logger *logrus.Logger
 }
 
-func newLogrus(_ *options) (logger *_logrus, err error) {
-	logger = &_logrus{
+func newLogrus() *_logrus {
+	return &_logrus{
 		logger: logrus.StandardLogger(),
 	}
-
-	return
 }
 
 func (l *_logrus) debug(msg string, fields ...gox.Field[any]) {
@@ -41,6 +39,10 @@ func (l *_logrus) panic(msg string, fields ...gox.Field[any]) {
 
 func (l *_logrus) fatal(msg string, fields ...gox.Field[any]) {
 	l.logger.WithFields(l.parse(fields...)).Fatal(msg)
+}
+
+func (l *_logrus) sync() (err error) {
+	return
 }
 
 func (l *_logrus) parse(fields ...gox.Field[any]) (logrusFields logrus.Fields) {

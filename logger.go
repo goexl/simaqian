@@ -6,11 +6,11 @@ import (
 
 // Logger 日志接口
 type Logger interface {
-	// Sets 设置新的配置项
-	Sets(opts ...option)
-
 	// Level 现在的日志等级
 	Level() level
+
+	// Enabled 日志等级是否开启
+	Enabled(lvl level) bool
 
 	// Debug 记录调试日志
 	Debug(msg string, fields ...gox.Field[any])
@@ -29,4 +29,7 @@ type Logger interface {
 
 	// Fatal 记录致命错误日志，程序会退出
 	Fatal(msg string, fields ...gox.Field[any])
+
+	// Sync 同步
+	Sync() error
 }

@@ -16,4 +16,6 @@ type executor interface {
 	panic(msg string, fields ...gox.Field[any])
 
 	fatal(msg string, fields ...gox.Field[any])
+
+	sync() error
 }
