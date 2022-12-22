@@ -9,6 +9,9 @@ type Logger interface {
 	// Level 现在的日志等级
 	Level() level
 
+	// Enable 开启日志级别
+	Enable(lvl level)
+
 	// Enabled 日志等级是否开启
 	Enabled(lvl level) bool
 

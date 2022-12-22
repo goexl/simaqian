@@ -29,6 +29,10 @@ func (dl *defaultLogger) Level() level {
 	return dl.config.level
 }
 
+func (dl *defaultLogger) Enable(lvl level) {
+	dl.config.level = lvl
+}
+
 func (dl *defaultLogger) Enabled(lvl level) bool {
 	return dl.config.level.rank() >= lvl.rank()
 }
