@@ -1,6 +1,7 @@
 package simaqian
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -137,6 +138,9 @@ func (z *_zap) parse(fields ...gox.Field[any]) (zfs []zap.Field) {
 			zfs = append(zfs, zap.Strings(f.Key(), value))
 		case *[]string:
 			zfs = append(zfs, zap.Strings(f.Key(), *value))
+		case json.Marshaler, []json.Marshaler:
+			// 一定要放在 fmt.Stringer 前面，保证优先使用 json 作为序列化器
+			zfs = append(zfs, zap.Reflect(f.Key(), f.Value()))
 		case fmt.Stringer:
 			zfs = append(zfs, zap.Stringer(f.Key(), value))
 		case []fmt.Stringer:
