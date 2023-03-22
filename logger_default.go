@@ -86,9 +86,9 @@ func (dl *defaultLogger) addStacks(fields *[]gox.Field[any]) {
 		return
 	}
 
-	pc := make([]uintptr, dl.config.stacktrace.stack+1)
-	count := runtime.Callers(dl.config.skip+1+dl.config.stacktrace.skip, pc)
-	frames := runtime.CallersFrames(pc[:count])
+	callers := make([]uintptr, dl.config.stacktrace.stack+1)
+	count := runtime.Callers(dl.config.skip+1+dl.config.stacktrace.skip, callers)
+	frames := runtime.CallersFrames(callers[:count])
 
 	stacks := make([]string, 0, 0)
 	for {
