@@ -90,7 +90,7 @@ func (dl *defaultLogger) addStacks(fields *[]gox.Field[any]) {
 	count := runtime.Callers(dl.config.skip+1+dl.config.stacktrace.skip, callers)
 	frames := runtime.CallersFrames(callers[:count])
 
-	stacks := make([]string, 0, 0)
+	stacks := make([]string, 0)
 	for {
 		frame, more := frames.Next()
 		stacks = append(stacks, fmt.Sprintf("%s[%s]:%d", filepath.Base(frame.File), frame.Function, frame.Line))

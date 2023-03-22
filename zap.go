@@ -138,13 +138,6 @@ func (z *_zap) parse(fields ...gox.Field[any]) (zfs []zap.Field) {
 			zfs = append(zfs, zap.Strings(f.Key(), value))
 		case *[]string:
 			zfs = append(zfs, zap.Strings(f.Key(), *value))
-		case json.Marshaler, []json.Marshaler:
-			// 一定要放在 fmt.Stringer 前面，保证优先使用 json 作为序列化器
-			zfs = append(zfs, zap.Reflect(f.Key(), f.Value()))
-		case fmt.Stringer:
-			zfs = append(zfs, zap.Stringer(f.Key(), value))
-		case []fmt.Stringer:
-			zfs = append(zfs, zap.Stringers(f.Key(), value))
 		case time.Time:
 			zfs = append(zfs, zap.Time(f.Key(), value))
 		case *time.Time:
@@ -157,6 +150,13 @@ func (z *_zap) parse(fields ...gox.Field[any]) (zfs []zap.Field) {
 			zfs = append(zfs, zap.Durationp(f.Key(), value))
 		case []time.Duration:
 			zfs = append(zfs, zap.Durations(f.Key(), value))
+		case json.Marshaler, []json.Marshaler:
+			// 一定要放在 fmt.Stringer 前面，保证优先使用 json 作为序列化器
+			zfs = append(zfs, zap.Reflect(f.Key(), f.Value()))
+		case fmt.Stringer:
+			zfs = append(zfs, zap.Stringer(f.Key(), value))
+		case []fmt.Stringer:
+			zfs = append(zfs, zap.Stringers(f.Key(), value))
 		case error:
 			zfs = append(zfs, zap.Error(value))
 		default:
