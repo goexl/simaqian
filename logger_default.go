@@ -38,39 +38,25 @@ func (dl *defaultLogger) Enabled(lvl level) bool {
 }
 
 func (dl *defaultLogger) Debug(msg string, fields ...gox.Field[any]) {
-	if dl.config.level.rank() > LevelDebug.rank() {
-		return
-	}
-
-	dl.addStacks(&fields)
 	dl.executor.debug(msg, fields...)
 }
 
 func (dl *defaultLogger) Info(msg string, fields ...gox.Field[any]) {
-	if dl.config.level.rank() > LevelInfo.rank() {
-		return
+	if dl.config.level.rank() <= LevelInfo.rank() {
+		dl.executor.info(msg, fields...)
 	}
-
-	dl.addStacks(&fields)
-	dl.executor.info(msg, fields...)
 }
 
 func (dl *defaultLogger) Warn(msg string, fields ...gox.Field[any]) {
-	if dl.config.level.rank() > LevelWarn.rank() {
-		return
+	if dl.config.level.rank() <= LevelWarn.rank() {
+		dl.executor.warn(msg, fields...)
 	}
-
-	dl.addStacks(&fields)
-	dl.executor.warn(msg, fields...)
 }
 
 func (dl *defaultLogger) Error(msg string, fields ...gox.Field[any]) {
-	if dl.config.level.rank() > LevelError.rank() {
-		return
+	if dl.config.level.rank() <= LevelError.rank() {
+		dl.executor.error(msg, fields...)
 	}
-
-	dl.addStacks(&fields)
-	dl.executor.error(msg, fields...)
 }
 
 func (dl *defaultLogger) Panic(msg string, fields ...gox.Field[any]) {
