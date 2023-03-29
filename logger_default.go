@@ -38,7 +38,9 @@ func (dl *defaultLogger) Enabled(lvl level) bool {
 }
 
 func (dl *defaultLogger) Debug(msg string, fields ...gox.Field[any]) {
-	dl.executor.debug(msg, fields...)
+	if dl.config.level.rank() <= LevelDebug.rank() {
+		dl.executor.debug(msg, fields...)
+	}
 }
 
 func (dl *defaultLogger) Info(msg string, fields ...gox.Field[any]) {
