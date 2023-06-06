@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/goexl/gox v0.1.6
-	github.com/sirupsen/logrus v1.9.2
+	github.com/sirupsen/logrus v1.9.3
 	go.uber.org/zap v1.24.0
 )
 
