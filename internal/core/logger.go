@@ -1,4 +1,4 @@
-package simaqian
+package core
 
 import (
 	"github.com/goexl/gox"
@@ -7,13 +7,13 @@ import (
 // Logger 日志接口
 type Logger interface {
 	// Level 现在的日志等级
-	Level() level
+	Level() Level
 
 	// Enable 开启日志级别
-	Enable(lvl level)
+	Enable(lvl Level)
 
 	// Enabled 日志等级是否开启
-	Enabled(lvl level) bool
+	Enabled(lvl Level) bool
 
 	// Debug 记录调试日志
 	Debug(msg string, fields ...gox.Field[any])

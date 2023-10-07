@@ -2,9 +2,10 @@ package simaqian_test
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/goexl/gox/field"
 	"github.com/goexl/simaqian"
-	"testing"
 )
 
 type jsonField struct {

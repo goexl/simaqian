@@ -1,18 +1,18 @@
-package simaqian
+package core
 
 var (
 	_ = Stdout
 	_ = Stderr
 )
 
-type writer string
+type Writer string
 
 // Stdout 标准输出流
-func Stdout() writer {
+func Stdout() Writer {
 	return "stdout"
 }
 
 // Stderr 标准错误流
-func Stderr() writer {
+func Stderr() Writer {
 	return "stderr"
 }
