@@ -28,6 +28,20 @@ func (l *Loki) Url(url string) (loki *Loki) {
 	return
 }
 
+func (l *Loki) Username(username string) (loki *Loki) {
+	l.params.Username = username
+	loki = l
+
+	return
+}
+
+func (l *Loki) Password(password string) (loki *Loki) {
+	l.params.Password = password
+	loki = l
+
+	return
+}
+
 func (l *Loki) Batch(size int, wait time.Duration) (loki *Loki) {
 	l.params.Batch.Size = size
 	l.params.Batch.Wait = wait

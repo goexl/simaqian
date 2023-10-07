@@ -5,9 +5,11 @@ import (
 )
 
 type Loki struct {
-	Url    string
-	Labels map[string]string
-	Batch  *internal.Batch
+	Url      string
+	Labels   map[string]string
+	Batch    *internal.Batch
+	Username string
+	Password string
 }
 
 func NewLoki() *Loki {

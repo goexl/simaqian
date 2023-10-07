@@ -2,7 +2,6 @@ package executor
 
 import (
 	"context"
-	"time"
 
 	"github.com/goexl/simaqian/internal/param"
 	"github.com/paul-milne/zap-loki"
@@ -11,14 +10,22 @@ import (
 
 func NewLoki(params *param.Loki) (logger *Zap, err error) {
 	logger = new(Zap)
-	config := zap.NewProductionConfig()
-	loki := zaploki.New(context.Background(), zaploki.Config{
+	config := zaploki.Config{
 		Url:          params.Url,
-		BatchMaxSize: 1000,
-		BatchMaxWait: 10 * time.Second,
-		Labels:       params.Labels,
-	})
-	logger.zap, err = loki.WithCreateLogger(config)
+		BatchMaxSize: params.Batch.Size,
+		BatchMaxWait: params.Batch.Wait,
+	}
+	if 0 != len(params.Labels) {
+		config.Labels = params.Labels
+	}
+	if "" != params.Username {
+		config.Username = params.Username
+	}
+	if "" != params.Password {
+		config.Password = params.Password
+	}
+	loki := zaploki.New(context.Background(), config)
+	logger.zap, err = loki.WithCreateLogger(zap.NewProductionConfig())
 
 	return
 }
