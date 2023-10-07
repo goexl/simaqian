@@ -43,6 +43,12 @@ func (c *Core) Level(lvl core.Level) *Core {
 	return c
 }
 
+func (c *Core) Skip(skip int) *Core {
+	c.config.Skip = skip
+
+	return c
+}
+
 func (c *Core) Stacktrace(skip int, stack int) *Core {
 	c.config.Stacktrace = &internal.Stacktrace{
 		Skip:  skip,

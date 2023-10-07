@@ -50,6 +50,20 @@ func (l *Loki) Batch(size int, wait time.Duration) (loki *Loki) {
 	return
 }
 
+func (l *Loki) Labels(labels map[string]string) (loki *Loki) {
+	l.params.Labels = labels
+	loki = l
+
+	return
+}
+
+func (l *Loki) Label(key string, value string) (loki *Loki) {
+	l.params.Labels[key] = value
+	loki = l
+
+	return
+}
+
 func (l *Loki) Build() (_logger core.Logger, err error) {
 	if loki, ne := executor.NewLoki(l.params); nil != ne {
 		err = ne

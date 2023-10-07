@@ -7,6 +7,7 @@ import (
 
 type Core struct {
 	Level      core.Level
+	Skip       int
 	Stacktrace *internal.Stacktrace
 }
 

@@ -35,7 +35,7 @@ func NewZap(param *param.Zap) (logger *Zap, err error) {
 			config.ErrorOutputPaths = append(config.OutputPaths, string(_error))
 		}
 	}
-	logger.zap, err = config.Build()
+	logger.zap, err = config.Build(zap.WithCaller(false))
 
 	return
 }

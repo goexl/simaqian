@@ -41,24 +41,28 @@ func (d *Default) Enabled(lvl core.Level) bool {
 
 func (d *Default) Debug(msg string, fields ...gox.Field[any]) {
 	if d.config.Level.Rank() <= core.LevelDebug.Rank() {
+		d.addCaller(&fields)
 		d.executor.Debug(msg, fields...)
 	}
 }
 
 func (d *Default) Info(msg string, fields ...gox.Field[any]) {
 	if d.config.Level.Rank() <= core.LevelInfo.Rank() {
+		d.addCaller(&fields)
 		d.executor.Info(msg, fields...)
 	}
 }
 
 func (d *Default) Warn(msg string, fields ...gox.Field[any]) {
 	if d.config.Level.Rank() <= core.LevelWarn.Rank() {
+		d.addCaller(&fields)
 		d.executor.Warn(msg, fields...)
 	}
 }
 
 func (d *Default) Error(msg string, fields ...gox.Field[any]) {
 	if d.config.Level.Rank() <= core.LevelError.Rank() {
+		d.addCaller(&fields)
 		d.executor.Error(msg, fields...)
 	}
 }
@@ -68,6 +72,7 @@ func (d *Default) Panic(msg string, fields ...gox.Field[any]) {
 		return
 	}
 
+	d.addCaller(&fields)
 	d.addStacks(&fields)
 	d.executor.Panic(msg, fields...)
 }
@@ -77,12 +82,20 @@ func (d *Default) Fatal(msg string, fields ...gox.Field[any]) {
 		return
 	}
 
+	d.addCaller(&fields)
 	d.addStacks(&fields)
 	d.executor.Fatal(msg, fields...)
 }
 
 func (d *Default) Sync() error {
 	return d.executor.Sync()
+}
+
+func (d *Default) addCaller(fields *[]gox.Field[any]) {
+	if _, file, no, ok := runtime.Caller(2 + d.config.Skip); ok { // ! 默认封闭的时候加了2层调用栈
+		caller := fmt.Sprintf("%s:%d", filepath.Base(file), no)
+		*fields = append(*fields, field.New("caller", caller))
+	}
 }
 
 func (d *Default) addStacks(fields *[]gox.Field[any]) {
@@ -102,8 +115,10 @@ func (d *Default) addStacks(fields *[]gox.Field[any]) {
 			break
 		}
 	}
-	sort.SliceStable(stacks, func(i, j int) bool {
-		return true
-	})
-	*fields = append(*fields, field.New[string]("stacks", strings.Join(stacks, " -> ")))
+	sort.SliceStable(stacks, d.swap)
+	*fields = append(*fields, field.New("stacks", strings.Join(stacks, " -> ")))
+}
+
+func (d *Default) swap(_, _ int) bool {
+	return true
 }
