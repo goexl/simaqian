@@ -3,6 +3,7 @@ module github.com/goexl/simaqian
 go 1.21
 
 require (
+	github.com/goexl/exc v0.0.5
 	github.com/goexl/gox v0.3.7
 	github.com/paul-milne/zap-loki v0.2.0
 	github.com/sirupsen/logrus v1.9.3
