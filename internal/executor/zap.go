@@ -7,6 +7,7 @@ import (
 
 	"github.com/goexl/gox"
 	"github.com/goexl/simaqian/internal/core"
+	"github.com/goexl/simaqian/internal/executor/internal/config"
 	"github.com/goexl/simaqian/internal/param"
 	"go.uber.org/zap"
 )
@@ -19,23 +20,23 @@ type Zap struct {
 
 func NewZap(param *param.Zap) (logger *Zap, err error) {
 	logger = new(Zap)
-	config := zap.NewProductionConfig()
+	defaultConfig := config.DefaultZap()
 	outputsSize := len(param.Outputs)
 	if 0 != outputsSize {
-		config.OutputPaths = make([]string, 0, outputsSize)
+		defaultConfig.OutputPaths = make([]string, 0, outputsSize)
 		for _, output := range param.Outputs {
-			config.OutputPaths = append(config.OutputPaths, string(output))
+			defaultConfig.OutputPaths = append(defaultConfig.OutputPaths, string(output))
 		}
 	}
 
 	errorsSize := len(param.Errors)
 	if 0 != errorsSize {
-		config.ErrorOutputPaths = make([]string, 0, errorsSize)
+		defaultConfig.ErrorOutputPaths = make([]string, 0, errorsSize)
 		for _, _error := range param.Errors {
-			config.ErrorOutputPaths = append(config.OutputPaths, string(_error))
+			defaultConfig.ErrorOutputPaths = append(defaultConfig.OutputPaths, string(_error))
 		}
 	}
-	logger.zap, err = config.Build(zap.WithCaller(false))
+	logger.zap, err = defaultConfig.Build(zap.WithCaller(false))
 
 	return
 }
