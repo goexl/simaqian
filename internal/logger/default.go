@@ -94,7 +94,7 @@ func (d *Default) Sync() error {
 func (d *Default) addCaller(fields *[]gox.Field[any]) {
 	if _, file, no, ok := runtime.Caller(2 + d.config.Skip); ok { // ! 默认封闭的时候加了2层调用栈
 		caller := fmt.Sprintf("%s:%d", filepath.Base(file), no)
-		*fields = append(*fields, field.New("caller", caller))
+		*fields = append([]gox.Field[any]{field.New("caller", caller)}, *fields...)
 	}
 }
 

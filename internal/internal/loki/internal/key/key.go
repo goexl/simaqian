@@ -1,3 +1,3 @@
-package internal
+package key
 
 const KeyLokiSink = "loki"

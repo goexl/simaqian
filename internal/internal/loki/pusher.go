@@ -2,13 +2,10 @@ package loki
 
 import (
 	"bytes"
-	"compress/gzip"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -16,18 +13,20 @@ import (
 	"github.com/goexl/exc"
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
-	"github.com/goexl/simaqian/internal/internal/loki/internal"
+	"github.com/goexl/simaqian/internal/internal/internal"
+	"github.com/goexl/simaqian/internal/internal/loki/internal/key"
+	"github.com/golang/snappy"
+	"github.com/grafana/loki/pkg/logproto"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type Pusher struct {
-	config  *Config
-	ctx     context.Context
-	client  *http.Client
-	quit    chan struct{}
-	entries chan Entry
-	group   sync.WaitGroup
+	config *Config
+	ctx    context.Context
+	client *http.Client
+	quit   chan gox.Empty
+	logs   chan *internal.Log
+	group  sync.WaitGroup
 }
 
 func New(ctx context.Context, config Config) (pusher *Pusher) {
@@ -35,11 +34,11 @@ func New(ctx context.Context, config Config) (pusher *Pusher) {
 	config.Url = strings.TrimSuffix(config.Url, "/")
 	config.Url = fmt.Sprintf("%s/loki/api/v1/push", config.Url)
 	pusher = &Pusher{
-		config:  &config,
-		ctx:     ctx,
-		client:  client,
-		quit:    make(chan struct{}),
-		entries: make(chan Entry),
+		config: &config,
+		ctx:    ctx,
+		client: client,
+		quit:   make(chan gox.Empty),
+		logs:   make(chan *internal.Log),
 	}
 	pusher.group.Add(1)
 	go pusher.run()
@@ -47,19 +46,8 @@ func New(ctx context.Context, config Config) (pusher *Pusher) {
 	return
 }
 
-func (p *Pusher) Hook(entry zapcore.Entry) error {
-	p.entries <- Entry{
-		Level:     entry.Level.String(),
-		Timestamp: float64(entry.Time.UnixMilli()),
-		Message:   entry.Message,
-		Caller:    entry.Caller.TrimmedPath(),
-	}
-
-	return nil
-}
-
-func (p *Pusher) Sink(_ *url.URL) (zap.Sink, error) {
-	return NewSink(p), nil
+func (p *Pusher) sink(_ *url.URL) (zap.Sink, error) {
+	return internal.NewSink(p), nil
 }
 
 func (p *Pusher) Stop() {
@@ -67,12 +55,16 @@ func (p *Pusher) Stop() {
 	p.group.Wait()
 }
 
+func (p *Pusher) Push(log *internal.Log) {
+	p.logs <- log
+}
+
 func (p *Pusher) Build(config zap.Config, opts ...zap.Option) (logger *zap.Logger, err error) {
-	if rse := zap.RegisterSink(internal.KeyLokiSink, p.Sink); nil != rse {
+	if rse := zap.RegisterSink(key.KeyLokiSink, p.sink); nil != rse {
 		err = rse
 	} else {
-		key := fmt.Sprintf("%s://", internal.KeyLokiSink)
-		config.OutputPaths = gox.Ift(nil == config.OutputPaths, []string{key}, append(config.OutputPaths, key))
+		_key := fmt.Sprintf("%s://", key.KeyLokiSink)
+		config.OutputPaths = gox.Ift(nil == config.OutputPaths, []string{_key}, append(config.OutputPaths, _key))
 		logger, err = config.Build(opts...)
 	}
 
@@ -80,82 +72,82 @@ func (p *Pusher) Build(config zap.Config, opts ...zap.Option) (logger *zap.Logge
 }
 
 func (p *Pusher) run() {
-	var entries []Entry
+	logs := make([]*internal.Log, 0, p.config.Batch.Size)
 	ticker := time.NewTimer(p.config.Batch.Wait)
-	defer p.cleanup(&entries)
+	defer p.cleanup(&logs)
 
 	for {
 		select {
 		case <-p.ctx.Done():
-			return
+			break
 		case <-p.quit:
-			return
-		case entry := <-p.entries:
-			entries = append(entries, entry)
-			if len(entries) >= p.config.Batch.Size {
-				_ = p.send(&entries)
-				entries = make([]Entry, 0)
+			break
+		case log := <-p.logs:
+			logs = append(logs, log)
+			if len(logs) >= p.config.Batch.Size {
+				_ = p.send(&logs)
+				logs = make([]*internal.Log, 0)
 				ticker.Reset(p.config.Batch.Wait)
 			}
 		case <-ticker.C:
-			if len(entries) > 0 {
-				_ = p.send(&entries)
-				entries = make([]Entry, 0)
+			if len(logs) > 0 {
+				_ = p.send(&logs)
+				logs = make([]*internal.Log, 0)
 			}
 			ticker.Reset(p.config.Batch.Wait)
 		}
 	}
 }
 
-func (p *Pusher) send(entries *[]Entry) (err error) {
-	req := p.assemble(entries)
-	if data, me := json.Marshal(req); nil != me {
+func (p *Pusher) send(logs *[]*internal.Log) (err error) {
+	if push, ae := p.make(logs); nil != ae {
+		err = ae
+	} else if data, me := push.Marshal(); nil != me {
 		err = me
-	} else if writer, ge := p.gzip(data); nil != ge {
-		err = ge
 	} else {
-		err = p.post(writer)
+		err = p.post(data)
 	}
 
 	return
 }
 
-func (p *Pusher) assemble(entries *[]Entry) (request *Request) {
-	request = new(Request)
-
-	var values [][2]string
-	for _, entry := range *entries {
-		timestamp := time.Unix(int64(entry.Timestamp), 0)
-		value := [2]string{strconv.FormatInt(timestamp.UnixNano(), 10), entry.raw}
-		values = append(values, value)
+func (p *Pusher) make(logs *[]*internal.Log) (request *logproto.PushRequest, err error) {
+	request = new(logproto.PushRequest)
+	entries := make([]logproto.Entry, 0, len(*logs))
+	for _, log := range *logs {
+		entries = append(entries, logproto.Entry{
+			Timestamp: log.Timestamp,
+			Line:      log.Raw(),
+		})
 	}
-	request.Streams = append(request.Streams, Stream{
-		Labels: p.config.Labels,
-		Values: values,
+	request.Streams = append(request.Streams, logproto.Stream{
+		Labels:  p.config.Labels.String(),
+		Entries: entries,
 	})
 
 	return
 }
 
-func (p *Pusher) post(writer *bytes.Buffer) (err error) {
-	if req, nre := http.NewRequest(internal.Post, p.config.Url, writer); nil != nre {
+func (p *Pusher) post(data []byte) (err error) {
+	data = snappy.Encode(nil, data)
+	buffer := bytes.NewBuffer(data)
+	if req, nre := http.NewRequest(key.Post, p.config.Url, buffer); nil != nre {
 		err = nre
 	} else {
-		err = p.http(req)
+		err = p.do(req)
 	}
 
 	return
 }
 
-func (p *Pusher) http(request *http.Request) (err error) {
-	request.Header.Set(internal.ContentType, internal.Json)
-	request.Header.Set(internal.ContentEncoding, internal.Gzip)
+func (p *Pusher) do(request *http.Request) (err error) {
+	request.Header.Set(key.ContentType, key.Protobuf)
 	if "" != p.config.Username && "" != p.config.Password {
 		request.SetBasicAuth(p.config.Username, p.config.Password)
 	}
 
 	rsp, de := p.client.Do(request)
-	defer p.httpClose(rsp)
+	defer p.close(rsp)
 
 	if nil != de {
 		err = de
@@ -166,27 +158,15 @@ func (p *Pusher) http(request *http.Request) (err error) {
 	return
 }
 
-func (p *Pusher) gzip(data []byte) (buffer *bytes.Buffer, err error) {
-	buffer = new(bytes.Buffer)
-	writer := gzip.NewWriter(buffer)
-	if _, we := writer.Write(data); nil != we {
-		err = we
-	} else if ce := writer.Close(); nil != ce {
-		err = ce
-	}
-
-	return
-}
-
-func (p *Pusher) httpClose(rsp *http.Response) {
+func (p *Pusher) close(rsp *http.Response) {
 	if nil != rsp {
 		_ = rsp.Body.Close()
 	}
 }
 
-func (p *Pusher) cleanup(entries *[]Entry) {
-	if len(*entries) > 0 {
-		_ = p.send(entries)
+func (p *Pusher) cleanup(logs *[]*internal.Log) {
+	if len(*logs) > 0 {
+		_ = p.send(logs)
 	}
 	p.group.Done()
 
