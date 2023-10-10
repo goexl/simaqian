@@ -10,6 +10,7 @@ import (
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
 	"github.com/goexl/simaqian/internal/core"
+	"github.com/goexl/simaqian/internal/internal/constant"
 	"github.com/goexl/simaqian/internal/param"
 )
 
@@ -99,12 +100,12 @@ func (d *Default) addCaller(fields *[]gox.Field[any]) {
 }
 
 func (d *Default) addStacks(fields *[]gox.Field[any]) {
-	if nil == d.config.Stacktrace {
+	if constant.Disabled == d.config.Stacktrace {
 		return
 	}
 
-	callers := make([]uintptr, d.config.Stacktrace.Stack+1)
-	count := runtime.Callers(d.config.Stacktrace.Skip+1, callers)
+	callers := make([]uintptr, d.config.Stacktrace+1)
+	count := runtime.Callers(d.config.Stacktrace+1, callers)
 	frames := runtime.CallersFrames(callers[:count])
 
 	stacks := make([]string, 0)

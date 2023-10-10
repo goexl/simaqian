@@ -2,7 +2,6 @@ package builder
 
 import (
 	"github.com/goexl/simaqian/internal/core"
-	"github.com/goexl/simaqian/internal/internal"
 	"github.com/goexl/simaqian/internal/internal/builder"
 	"github.com/goexl/simaqian/internal/param"
 )
@@ -49,11 +48,8 @@ func (c *Core) Skip(skip int) *Core {
 	return c
 }
 
-func (c *Core) Stacktrace(skip int, stack int) *Core {
-	c.config.Stacktrace = &internal.Stacktrace{
-		Skip:  skip,
-		Stack: stack,
-	}
+func (c *Core) Stacktrace(stacktrace int) *Core {
+	c.config.Stacktrace = stacktrace
 
 	return c
 }
