@@ -12,6 +12,6 @@ type Batch struct {
 func NewBatch() *Batch {
 	return &Batch{
 		Size: 1000,
-		Wait: 10 * time.Second,
+		Wait: 3 * time.Second,
 	}
 }
