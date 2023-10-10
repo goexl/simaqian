@@ -1,3 +1,3 @@
 package constant
 
-const Disabled = -1
+const DefaultStacktrace = 5

@@ -14,6 +14,6 @@ type Core struct {
 func NewCore() *Core {
 	return &Core{
 		Level:      core.LevelInfo,
-		Stacktrace: constant.Disabled,
+		Stacktrace: constant.DefaultStacktrace,
 	}
 }

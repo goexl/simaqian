@@ -10,7 +10,6 @@ import (
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
 	"github.com/goexl/simaqian/internal/core"
-	"github.com/goexl/simaqian/internal/internal/constant"
 	"github.com/goexl/simaqian/internal/param"
 )
 
@@ -100,12 +99,8 @@ func (d *Default) addCaller(fields *[]gox.Field[any]) {
 }
 
 func (d *Default) addStacks(fields *[]gox.Field[any]) {
-	if constant.Disabled == d.config.Stacktrace {
-		return
-	}
-
-	callers := make([]uintptr, d.config.Stacktrace+1)
-	count := runtime.Callers(d.config.Stacktrace+1, callers)
+	callers := make([]uintptr, d.config.Stacktrace)
+	count := runtime.Callers(2+d.config.Skip, callers) // ! 默认封闭的时候加了2层调用栈
 	frames := runtime.CallersFrames(callers[:count])
 
 	stacks := make([]string, 0)
