@@ -27,6 +27,7 @@ type Pusher struct {
 	quit   chan gox.Empty
 	logs   chan *internal.Log
 	group  sync.WaitGroup
+	logger *zap.Logger
 }
 
 func New(ctx context.Context, config Config) (pusher *Pusher) {
@@ -65,7 +66,8 @@ func (p *Pusher) Build(config zap.Config, opts ...zap.Option) (logger *zap.Logge
 	} else {
 		_key := fmt.Sprintf("%s://", key.KeyLokiSink)
 		config.OutputPaths = gox.Ift(nil == config.OutputPaths, []string{_key}, append(config.OutputPaths, _key))
-		logger, err = config.Build(opts...)
+		p.logger, err = config.Build(opts...)
+		logger = p.logger
 	}
 
 	return
@@ -106,6 +108,9 @@ func (p *Pusher) send(logs *[]*internal.Log) (err error) {
 		err = me
 	} else {
 		err = p.post(data)
+	}
+	if nil != err {
+		p.logger.Warn("推送日志出错", zap.Error(err))
 	}
 
 	return
