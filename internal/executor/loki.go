@@ -11,10 +11,11 @@ import (
 
 func NewLoki(params *param.Loki) (logger *Zap, err error) {
 	logger = new(Zap)
-	lokiConfig := loki.Config{
-		Url:   params.Url,
-		Batch: params.Batch,
-	}
+	lokiConfig := new(loki.Config)
+	lokiConfig.Url = params.Url
+	lokiConfig.Batch = params.Batch
+	lokiConfig.Http = params.Http
+
 	if 0 != len(params.Labels) {
 		lokiConfig.Labels = params.Labels
 	}

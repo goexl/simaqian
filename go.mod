@@ -3,6 +3,7 @@ module github.com/goexl/simaqian
 go 1.21
 
 require (
+	github.com/go-resty/resty/v2 v2.9.1
 	github.com/goexl/exc v0.0.5
 	github.com/goexl/gox v0.3.8
 	github.com/golang/snappy v0.0.4
@@ -19,9 +20,9 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/prometheus v1.8.2-0.20200727090838-6f296594a852 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.0.0-20210610124326-52da8fb2a613 // indirect
+	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.3.8 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto v0.0.0-20200724131911-43cab4749ae7 // indirect
 	google.golang.org/grpc v1.30.0 // indirect
 	google.golang.org/protobuf v1.24.0 // indirect

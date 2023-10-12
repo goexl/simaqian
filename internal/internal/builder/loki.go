@@ -3,6 +3,7 @@ package builder
 import (
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/goexl/simaqian/internal/core"
 	"github.com/goexl/simaqian/internal/executor"
 	"github.com/goexl/simaqian/internal/logger"
@@ -59,6 +60,13 @@ func (l *Loki) Labels(labels map[string]string) (loki *Loki) {
 
 func (l *Loki) Label(key string, value string) (loki *Loki) {
 	l.params.Labels[key] = value
+	loki = l
+
+	return
+}
+
+func (l *Loki) Http(http *resty.Client) (loki *Loki) {
+	l.params.Http = http
 	loki = l
 
 	return

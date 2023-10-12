@@ -1,18 +1,18 @@
 package loki
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/goexl/exc"
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
+	"github.com/goexl/simaqian/internal/config"
 	"github.com/goexl/simaqian/internal/internal/internal"
 	"github.com/goexl/simaqian/internal/internal/loki/internal/key"
 	"github.com/golang/snappy"
@@ -21,26 +21,29 @@ import (
 )
 
 type Pusher struct {
-	config *Config
-	ctx    context.Context
-	client *http.Client
-	quit   chan gox.Empty
-	logs   chan *internal.Log
-	group  sync.WaitGroup
+	ctx   context.Context
+	quit  chan gox.Empty
+	logs  chan *internal.Log
+	group sync.WaitGroup
+
+	http   *resty.Client
+	batch  *config.Batch
+	labels gox.Labels
+	url    string
 	logger *zap.Logger
 }
 
-func New(ctx context.Context, config Config) (pusher *Pusher) {
-	client := new(http.Client)
-	config.Url = strings.TrimSuffix(config.Url, "/")
-	config.Url = fmt.Sprintf("%s/loki/api/v1/push", config.Url)
-	pusher = &Pusher{
-		config: &config,
-		ctx:    ctx,
-		client: client,
-		quit:   make(chan gox.Empty),
-		logs:   make(chan *internal.Log),
-	}
+func New(ctx context.Context, config *Config) (pusher *Pusher) {
+	pusher = new(Pusher)
+	pusher.ctx = ctx
+	pusher.http = config.Http
+	pusher.labels = config.Labels
+	pusher.batch = config.Batch
+	pusher.quit = make(chan gox.Empty)
+	pusher.logs = make(chan *internal.Log)
+
+	pusher.url = fmt.Sprintf("%s/loki/api/v1/push", config.Url)
+	pusher.http.SetBasicAuth(config.Username, config.Password)
 	pusher.group.Add(1)
 	go pusher.run()
 
@@ -74,8 +77,8 @@ func (p *Pusher) Build(config zap.Config, opts ...zap.Option) (logger *zap.Logge
 }
 
 func (p *Pusher) run() {
-	logs := make([]*internal.Log, 0, p.config.Batch.Size)
-	ticker := time.NewTimer(p.config.Batch.Wait)
+	logs := make([]*internal.Log, 0, p.batch.Size)
+	ticker := time.NewTimer(p.batch.Wait)
 	defer p.cleanup(&logs)
 
 	for {
@@ -86,17 +89,17 @@ func (p *Pusher) run() {
 			break
 		case log := <-p.logs:
 			logs = append(logs, log)
-			if len(logs) >= p.config.Batch.Size {
+			if len(logs) >= p.batch.Size {
 				_ = p.send(&logs)
 				logs = make([]*internal.Log, 0)
-				ticker.Reset(p.config.Batch.Wait)
+				ticker.Reset(p.batch.Wait)
 			}
 		case <-ticker.C:
 			if len(logs) > 0 {
 				_ = p.send(&logs)
 				logs = make([]*internal.Log, 0)
 			}
-			ticker.Reset(p.config.Batch.Wait)
+			ticker.Reset(p.batch.Wait)
 		}
 	}
 }
@@ -126,7 +129,7 @@ func (p *Pusher) make(logs *[]*internal.Log) (request *logproto.PushRequest, err
 		})
 	}
 	request.Streams = append(request.Streams, logproto.Stream{
-		Labels:  p.config.Labels.String(),
+		Labels:  p.labels.String(),
 		Entries: entries,
 	})
 
@@ -135,29 +138,10 @@ func (p *Pusher) make(logs *[]*internal.Log) (request *logproto.PushRequest, err
 
 func (p *Pusher) post(data []byte) (err error) {
 	data = snappy.Encode(nil, data)
-	buffer := bytes.NewBuffer(data)
-	if req, nre := http.NewRequest(key.Post, p.config.Url, buffer); nil != nre {
-		err = nre
-	} else {
-		err = p.do(req)
-	}
-
-	return
-}
-
-func (p *Pusher) do(request *http.Request) (err error) {
-	request.Header.Set(key.ContentType, key.Protobuf)
-	if "" != p.config.Username && "" != p.config.Password {
-		request.SetBasicAuth(p.config.Username, p.config.Password)
-	}
-
-	rsp, de := p.client.Do(request)
-	defer p.close(rsp)
-
-	if nil != de {
-		err = de
-	} else if rsp.StatusCode != http.StatusNoContent {
-		err = exc.NewField("Loki服务器返回错误", field.New("status", rsp.Status))
+	if rsp, pe := p.http.R().SetBody(data).Post(p.url); nil != pe {
+		err = pe
+	} else if rsp.IsError() {
+		err = exc.NewFields("Loki服务器返回错误", field.New("status", rsp.Status()), field.New("body", string(rsp.Body())))
 	}
 
 	return
