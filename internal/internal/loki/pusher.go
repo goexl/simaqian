@@ -43,7 +43,7 @@ func New(ctx context.Context, config *Config) (pusher *Pusher) {
 	pusher.logs = make(chan *internal.Log)
 
 	pusher.url = fmt.Sprintf("%s/loki/api/v1/push", config.Url)
-	pusher.http.SetBasicAuth(config.Username, config.Password)
+	pusher.http.SetBasicAuth(config.Username, config.Password).SetHeader(key.ContentType, key.Protobuf)
 	pusher.group.Add(1)
 	go pusher.run()
 
