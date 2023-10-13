@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/goexl/exc v0.0.5
 	github.com/goexl/gox v0.3.8
-	github.com/goexl/http v0.0.2
+	github.com/goexl/http v0.0.5
 	github.com/golang/snappy v0.0.4
 	github.com/grafana/loki v1.6.1
 	github.com/sirupsen/logrus v1.9.3
