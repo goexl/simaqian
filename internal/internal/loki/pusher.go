@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -107,9 +108,9 @@ func (p *Pusher) run() {
 }
 
 func (p *Pusher) send(logs *[]*internal.Log) (err error) {
-	if push, ae := p.make(logs); nil != ae {
+	if request, ae := p.make(logs); nil != ae {
 		err = ae
-	} else if data, me := push.Marshal(); nil != me {
+	} else if data, me := json.Marshal(request); nil != me {
 		err = me
 	} else {
 		err = p.post(data)
@@ -142,7 +143,7 @@ func (p *Pusher) post(data []byte) (err error) {
 	request := p.http.R()
 	if buffer, ge := p.gzip(request, data); nil != ge {
 		err = ge
-	} else if rsp, pe := p.http.R().SetBody(buffer).Post(p.url); nil != pe {
+	} else if rsp, pe := request.SetBody(buffer).Post(p.url); nil != pe {
 		err = pe
 	} else if rsp.IsError() {
 		err = exc.NewFields("Loki服务器返回错误", field.New("status", rsp.Status()), field.New("body", string(rsp.Body())))
