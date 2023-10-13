@@ -3,15 +3,14 @@ package loki
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/goexl/exc"
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
+	"github.com/goexl/http"
 	"github.com/goexl/simaqian/internal/config"
 	"github.com/goexl/simaqian/internal/internal/internal"
 	"github.com/goexl/simaqian/internal/internal/loki/internal/key"
@@ -26,7 +25,7 @@ type Pusher struct {
 	logs  chan *internal.Log
 	group sync.WaitGroup
 
-	http   *resty.Client
+	http   *http.Client
 	batch  *config.Batch
 	labels gox.Labels
 	url    string
@@ -145,12 +144,6 @@ func (p *Pusher) post(data []byte) (err error) {
 	}
 
 	return
-}
-
-func (p *Pusher) close(rsp *http.Response) {
-	if nil != rsp {
-		_ = rsp.Body.Close()
-	}
 }
 
 func (p *Pusher) cleanup(logs *[]*internal.Log) {
