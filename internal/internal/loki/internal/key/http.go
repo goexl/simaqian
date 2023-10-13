@@ -1,6 +1,8 @@
 package key
 
 const (
-	ContentType = "Content-Type"
-	Protobuf    = "application/x-protobuf"
+	ContentType     = "Content-Type"
+	ContentEncoding = "Content-Encoding"
+	Gzip            = "gzip"
+	Json            = "application/json"
 )

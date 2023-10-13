@@ -1,21 +1,24 @@
 package loki
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/goexl/exc"
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
 	"github.com/goexl/http"
 	"github.com/goexl/simaqian/internal/config"
 	"github.com/goexl/simaqian/internal/internal/internal"
+	"github.com/goexl/simaqian/internal/internal/loki/internal/api"
 	"github.com/goexl/simaqian/internal/internal/loki/internal/key"
-	"github.com/golang/snappy"
-	"github.com/grafana/loki/pkg/logproto"
 	"go.uber.org/zap"
 )
 
@@ -42,7 +45,7 @@ func New(ctx context.Context, config *Config) (pusher *Pusher) {
 	pusher.logs = make(chan *internal.Log)
 
 	pusher.url = fmt.Sprintf("%s/loki/api/v1/push", config.Url)
-	pusher.http.SetBasicAuth(config.Username, config.Password).SetHeader(key.ContentType, key.Protobuf)
+	pusher.http.SetBasicAuth(config.Username, config.Password).SetHeader(key.ContentType, key.Json)
 	pusher.group.Add(1)
 	go pusher.run()
 
@@ -118,29 +121,47 @@ func (p *Pusher) send(logs *[]*internal.Log) (err error) {
 	return
 }
 
-func (p *Pusher) make(logs *[]*internal.Log) (request *logproto.PushRequest, err error) {
-	request = new(logproto.PushRequest)
-	entries := make([]logproto.Entry, 0, len(*logs))
+func (p *Pusher) make(logs *[]*internal.Log) (request *api.Request, err error) {
+	request = new(api.Request)
+	values := make([]*api.Value, 0, len(*logs))
 	for _, log := range *logs {
-		entries = append(entries, logproto.Entry{
-			Timestamp: log.Timestamp,
-			Line:      log.Raw(),
+		values = append(values, &api.Value{
+			strconv.FormatInt(log.Timestamp.UnixNano(), 10),
+			log.Raw(),
 		})
 	}
-	request.Streams = append(request.Streams, logproto.Stream{
-		Labels:  p.labels.String(),
-		Entries: entries,
+	request.Streams = append(request.Streams, &api.Stream{
+		Stream: p.labels,
+		Values: values,
 	})
 
 	return
 }
 
 func (p *Pusher) post(data []byte) (err error) {
-	data = snappy.Encode(nil, data)
-	if rsp, pe := p.http.R().SetBody(data).Post(p.url); nil != pe {
+	request := p.http.R()
+	if buffer, ge := p.gzip(request, data); nil != ge {
+		err = ge
+	} else if rsp, pe := p.http.R().SetBody(buffer).Post(p.url); nil != pe {
 		err = pe
 	} else if rsp.IsError() {
 		err = exc.NewFields("Loki服务器返回错误", field.New("status", rsp.Status()), field.New("body", string(rsp.Body())))
+	}
+
+	return
+}
+
+func (p *Pusher) gzip(request *resty.Request, data []byte) (buffer *bytes.Buffer, err error) {
+	buffer = new(bytes.Buffer)
+	writer := gzip.NewWriter(buffer)
+	if _, we := writer.Write(data); nil != we {
+		err = exc.NewField("压缩数据出错", field.Error(we))
+	}
+	if nil == err {
+		err = writer.Close()
+	}
+	if nil == err {
+		request.SetHeader(key.ContentEncoding, key.Gzip)
 	}
 
 	return
