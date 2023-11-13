@@ -6,7 +6,7 @@ require (
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/goexl/exc v0.0.5
 	github.com/goexl/gox v0.3.8
-	github.com/goexl/http v0.0.6
+	github.com/goexl/http v0.1.0
 	github.com/sirupsen/logrus v1.9.3
 	go.uber.org/zap v1.26.0
 )
