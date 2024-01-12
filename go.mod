@@ -3,7 +3,7 @@ module github.com/goexl/simaqian
 go 1.21
 
 require (
-	github.com/go-resty/resty/v2 v2.10.0
+	github.com/go-resty/resty/v2 v2.11.0
 	github.com/goexl/exc v0.0.5
 	github.com/goexl/gox v0.3.8
 	github.com/goexl/http v0.1.8
