@@ -8,7 +8,7 @@ require (
 	github.com/goexl/gox v0.3.8
 	github.com/goexl/http v0.1.8
 	github.com/sirupsen/logrus v1.9.3
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 )
 
 require (
