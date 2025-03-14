@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"github.com/goexl/log"
 	"github.com/goexl/simaqian/internal/core"
 	"github.com/goexl/simaqian/internal/executor"
 	"github.com/goexl/simaqian/internal/logger"
@@ -8,31 +9,29 @@ import (
 )
 
 type Zap struct {
-	core   *param.Core
-	config *param.Zap
+	params *param.Zap
 }
 
-func NewZap(core *param.Core) *Zap {
+func NewZap() *Zap {
 	return &Zap{
-		core:   core,
-		config: param.NewZap(),
+		params: param.NewZap(),
 	}
 }
 
 func (z *Zap) Output(writer core.Writer) *Zap {
-	z.config.Outputs = append(z.config.Outputs, writer)
+	z.params.Outputs = append(z.params.Outputs, writer)
 
 	return z
 }
 
 func (z *Zap) Error(writer core.Writer) *Zap {
-	z.config.Errors = append(z.config.Errors, writer)
+	z.params.Errors = append(z.params.Errors, writer)
 
 	return z
 }
 
-func (z *Zap) Build() (_logger core.Logger, err error) {
-	if zap, ne := executor.NewZap(z.config); nil != ne {
+func (z *Zap) Build() (_logger log.Logger, err error) {
+	if zap, ne := executor.NewZap(z.params); nil != ne {
 		err = ne
 	} else {
 		_logger = logger.NewDefault(z.core, zap)

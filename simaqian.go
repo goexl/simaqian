@@ -1,8 +1,8 @@
 package simaqian
 
 import (
+	"github.com/goexl/log"
 	"github.com/goexl/simaqian/internal/builder"
-	"github.com/goexl/simaqian/internal/core"
 )
 
 var _ = Must
@@ -13,12 +13,12 @@ func New() *builder.Core {
 }
 
 // Must 必须返回日志
-func Must() core.Logger {
+func Must() log.Logger {
 	return Default()
 }
 
 // Default 默认日志
-func Default() (logger core.Logger) {
+func Default() (logger log.Logger) {
 	if zap, err := New().Zap().Build(); nil != err {
 		panic(err)
 	} else {
